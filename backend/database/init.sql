@@ -1,0 +1,80 @@
+-- Eliminar tablas si existen
+DROP TABLE IF EXISTS teacher_surveys CASCADE;
+DROP TABLE IF EXISTS student_surveys CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Crear tabla de usuarios
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('student', 'teacher', 'admin')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de encuestas de estudiantes
+CREATE TABLE student_surveys (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    has_used_chatbot BOOLEAN NOT NULL,
+    chatbots_used TEXT[],
+    usage_frequency VARCHAR(50),
+    usefulness_rating INTEGER CHECK (usefulness_rating >= 1 AND usefulness_rating <= 5),
+    tasks_used_for TEXT[],
+    overall_experience INTEGER CHECK (overall_experience >= 1 AND overall_experience <= 5),
+    preferred_chatbot VARCHAR(100),
+    effectiveness_comparison VARCHAR(100),
+    will_continue_using BOOLEAN,
+    would_recommend BOOLEAN,
+    additional_comments TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear tabla de encuestas de profesores
+CREATE TABLE teacher_surveys (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    has_used_chatbot BOOLEAN NOT NULL,
+    chatbots_used TEXT[],
+    courses_used TEXT[],
+    purposes TEXT[],
+    outcomes TEXT[],
+    challenges TEXT[],
+    likelihood_future_use VARCHAR(50),
+    advantages TEXT[],
+    concerns TEXT[],
+    resources_needed TEXT[],
+    age_range VARCHAR(50),
+    institution_type VARCHAR(100),
+    country VARCHAR(100),
+    years_experience VARCHAR(50),
+    additional_comments TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear índices para mejorar el rendimiento
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_student_surveys_user_id ON student_surveys(user_id);
+CREATE INDEX idx_teacher_surveys_user_id ON teacher_surveys(user_id);
+CREATE INDEX idx_student_surveys_created_at ON student_surveys(created_at DESC);
+CREATE INDEX idx_teacher_surveys_created_at ON teacher_surveys(created_at DESC);
+
+-- Insertar datos de prueba
+-- Contraseña para todos: 123456
+INSERT INTO users (username, email, password, role) VALUES
+('admin', 'admin@test.com', '$2b$10$YourHashedPasswordHere', 'admin'),
+('profesor1', 'profesor1@test.com', '$2b$10$YourHashedPasswordHere', 'teacher'),
+('estudiante1', 'estudiante1@test.com', '$2b$10$YourHashedPasswordHere', 'student'),
+('estudiante2', 'estudiante2@test.com', '$2b$10$YourHashedPasswordHere', 'student');
+
+-- Nota: Las contraseñas hasheadas deben ser generadas con bcrypt
+-- La contraseña real es: 123456
+-- Para generar el hash, ejecuta en Node.js:
+-- const bcrypt = require('bcrypt');
+-- bcrypt.hash('123456', 10).then(hash => console.log(hash));
+
+COMMENT ON TABLE users IS 'Tabla de usuarios del sistema';
+COMMENT ON TABLE student_surveys IS 'Encuestas completadas por estudiantes';
+COMMENT ON TABLE teacher_surveys IS 'Encuestas completadas por profesores';
