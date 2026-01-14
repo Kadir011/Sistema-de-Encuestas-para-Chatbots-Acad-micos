@@ -12,9 +12,14 @@ const pool = new Pool({
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT || 5432,
-    max: 20, // Máximo de conexiones simultáneas
-    idleTimeoutMillis: 30000, // Tiempo máximo de inactividad
-    connectionTimeoutMillis: 2000, // Timeout de conexión
+    // Allow configuring pool size via env. If not provided, use a large default
+    // to avoid rejecting connections during development/testing (e.g., Postman).
+    // Note: PostgreSQL itself also has a `max_connections` server limit.
+    max: process.env.DB_POOL_MAX ? parseInt(process.env.DB_POOL_MAX, 10) : 1000,
+    // Increase idle timeout to reduce churn during rapid requests
+    idleTimeoutMillis: process.env.DB_IDLE_TIMEOUT ? parseInt(process.env.DB_IDLE_TIMEOUT, 10) : 300000,
+    // Set connection timeout to 0 (no timeout) while testing; can be tuned via env
+    connectionTimeoutMillis: process.env.DB_CONN_TIMEOUT ? parseInt(process.env.DB_CONN_TIMEOUT, 10) : 0,
 });
 
 // Manejo de errores del pool
