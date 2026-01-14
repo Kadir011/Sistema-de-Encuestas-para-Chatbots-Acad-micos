@@ -123,53 +123,50 @@ DB_USER=${DB_USER:-postgres}
 read -p "Ingresa el nombre de la base de datos (default: chatbots_system): " DB_NAME
 DB_NAME=${DB_NAME:-chatbots_system}
 
+# Verificar si la base de datos existe
+print_info "Verificando si la base de datos $DB_NAME existe..."
+DB_EXISTS=$(psql -U $DB_USER -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'")
+
+if [ "$DB_EXISTS" = "1" ]; then
+    print_info "La base de datos $DB_NAME ya existe."
+    read -p "¿Deseas eliminarla y crear una nueva? (s/n, default: s): " RECREATE
+    RECREATE=${RECREATE:-s}
+    
+    if [ "$RECREATE" = "s" ] || [ "$RECREATE" = "S" ]; then
+        print_info "Eliminando base de datos existente $DB_NAME..."
+        dropdb -U $DB_USER $DB_NAME 2>/dev/null
+        if [ $? -eq 0 ]; then
+            print_success "Base de datos $DB_NAME eliminada"
+        else
+            print_error "Error al eliminar la base de datos"
+            exit 1
+        fi
+    else
+        print_info "Se mantendrá la base de datos existente."
+        exit 0
+    fi
+fi
+
 print_info "Creando base de datos $DB_NAME..."
-createdb -U $DB_USER $DB_NAME 2>/dev/null
+createdb -U $DB_USER $DB_NAME
+if [ $? -ne 0 ]; then
+    print_error "Error al crear la base de datos"
+    exit 1
+fi
 
 if [ -f "backend/database/init.sql" ]; then
     print_info "Ejecutando script de inicialización..."
     psql -U $DB_USER -d $DB_NAME -f backend/database/init.sql
     if [ $? -eq 0 ]; then
-        print_success "Base de datos inicializada"
+        print_success "Base de datos inicializada correctamente"
     else
         print_error "Error al inicializar la base de datos"
+        exit 1
     fi
 else
     print_error "No se encontró backend/database/init.sql"
+    exit 1
 fi
-
-# ============================
-# GENERAR HASH DE CONTRASEÑAS
-# ============================
-echo ""
-print_info "Generando hashes de contraseñas para usuarios de prueba..."
-
-# Crear script temporal de Node.js para generar hashes
-cat > backend/generate-hash.js << 'EOF'
-import bcrypt from 'bcrypt';
-
-const password = '123456';
-const saltRounds = 10;
-
-bcrypt.hash(password, saltRounds).then(hash => {
-    console.log('Hash para contraseña "123456":');
-    console.log(hash);
-    
-    // Actualizar base de datos
-    const updateSQL = `
--- Actualizar contraseñas de usuarios de prueba
-UPDATE users SET password = '${hash}' WHERE username IN ('admin', 'profesor1', 'estudiante1', 'estudiante2');
-    `;
-    
-    console.log('\nEjecuta este SQL para actualizar las contraseñas:');
-    console.log(updateSQL);
-});
-EOF
-
-cd backend
-node generate-hash.js
-rm generate-hash.js
-cd ..
 
 # ============================
 # FINALIZACIÓN
@@ -182,7 +179,6 @@ echo ""
 print_info "Próximos pasos:"
 echo ""
 echo "1. Configura las variables de entorno en backend/.env"
-echo "2. Actualiza las contraseñas en la base de datos usando el SQL generado arriba"
 echo ""
 echo "Para iniciar el proyecto:"
 echo ""
@@ -191,11 +187,6 @@ echo "  cd backend && npm run dev"
 echo ""
 echo "  Terminal 2 - Frontend:"
 echo "  cd frontend && npm run dev"
-echo ""
-echo "Credenciales de prueba:"
-echo "  Admin: admin@test.com / 123456"
-echo "  Profesor: profesor1@test.com / 123456"
-echo "  Estudiante: estudiante1@test.com / 123456"
 echo ""
 print_success "¡Disfruta del sistema de encuestas!"
 echo ""
