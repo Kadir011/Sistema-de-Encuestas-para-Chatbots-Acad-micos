@@ -60,21 +60,3 @@ CREATE INDEX idx_student_surveys_user_id ON student_surveys(user_id);
 CREATE INDEX idx_teacher_surveys_user_id ON teacher_surveys(user_id);
 CREATE INDEX idx_student_surveys_created_at ON student_surveys(created_at DESC);
 CREATE INDEX idx_teacher_surveys_created_at ON teacher_surveys(created_at DESC);
-
--- Insertar datos de prueba
--- Contraseña para todos: 123456
-INSERT INTO users (username, email, password, role) VALUES
-('admin', 'admin@test.com', '$2b$10$YourHashedPasswordHere', 'admin'),
-('profesor1', 'profesor1@test.com', '$2b$10$YourHashedPasswordHere', 'teacher'),
-('estudiante1', 'estudiante1@test.com', '$2b$10$YourHashedPasswordHere', 'student'),
-('estudiante2', 'estudiante2@test.com', '$2b$10$YourHashedPasswordHere', 'student');
-
--- Nota: Las contraseñas hasheadas deben ser generadas con bcrypt
--- La contraseña real es: 123456
--- Para generar el hash, ejecuta en Node.js:
--- const bcrypt = require('bcrypt');
--- bcrypt.hash('123456', 10).then(hash => console.log(hash));
-
-COMMENT ON TABLE users IS 'Tabla de usuarios del sistema';
-COMMENT ON TABLE student_surveys IS 'Encuestas completadas por estudiantes';
-COMMENT ON TABLE teacher_surveys IS 'Encuestas completadas por profesores';
