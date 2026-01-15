@@ -1,10 +1,28 @@
+@import './styles/animations.css';
+@import './styles/utilities.css';
+
+:root {
+  --layout-max-width: 1280px;
+  --page-padding-sm: 1rem;
+  --page-padding-md: 2rem;
+}
+
+/* Contenedor principal con padding responsivo y ancho máximo */
 #root {
-  max-width: 1280px;
+  max-width: var(--layout-max-width);
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--page-padding-sm);
   text-align: center;
 }
 
+@media (min-width: 640px) {
+  #root {
+    padding: var(--page-padding-md);
+    text-align: left;
+  }
+}
+
+/* Logo: conserva efecto y respeta prefers-reduced-motion */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -19,12 +37,8 @@
 }
 
 @keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -33,10 +47,26 @@
   }
 }
 
+/* Pequeñas utilidades para compatibilidad con componentes que usan clases globales */
 .card {
-  padding: 2em;
+  padding: 1.25rem;
 }
 
 .read-the-docs {
   color: #888;
+}
+
+/* Helpers responsivos habituales (pueden eliminarse si sólo se usa Tailwind) */
+.container-center {
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  padding-left: var(--page-padding-sm);
+  padding-right: var(--page-padding-sm);
+}
+
+@media (min-width: 640px) {
+  .container-center {
+    padding-left: var(--page-padding-md);
+    padding-right: var(--page-padding-md);
+  }
 }
