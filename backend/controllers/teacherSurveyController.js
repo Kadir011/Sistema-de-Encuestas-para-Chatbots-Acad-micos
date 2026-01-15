@@ -167,14 +167,14 @@ export const deleteTeacherSurvey = async (req, res) => {
 
 export const getTeacherSurveyStatistics = async (req, res) => {
     try {
-        const userStats = await StudentSurvey.getUserStatistics(req.user.id);
-        const userSurveys = await StudentSurvey.findByUserId(req.user.id);
+        const userStats = await TeacherSurvey.getUserStatistics(req.user.id);
+        const userSurveys = await TeacherSurvey.findByUserId(req.user.id);
 
         // Calcular estadísticas detalladas
         const chatbotsUsed = new Set();
-        const tasksUsed = new Set();
+        const purposesUsed = new Set();
         const chatbotCounts = {};
-        const taskCounts = {};
+        const purposeCounts = {};
         
         userSurveys.forEach(survey => {
             if (survey.chatbots_used) {
@@ -183,10 +183,10 @@ export const getTeacherSurveyStatistics = async (req, res) => {
                     chatbotCounts[chatbot] = (chatbotCounts[chatbot] || 0) + 1;
                 });
             }
-            if (survey.tasks_used_for) {
-                survey.tasks_used_for.forEach(task => {
-                    tasksUsed.add(task);
-                    taskCounts[task] = (taskCounts[task] || 0) + 1;
+            if (survey.purposes) {
+                survey.purposes.forEach(purpose => {
+                    purposesUsed.add(purpose);
+                    purposeCounts[purpose] = (purposeCounts[purpose] || 0) + 1;
                 });
             }
         });
@@ -197,9 +197,9 @@ export const getTeacherSurveyStatistics = async (req, res) => {
             statistics: {
                 ...userStats,
                 unique_chatbots: chatbotsUsed.size,
-                unique_tasks: tasksUsed.size,
+                unique_purposes: purposesUsed.size,
                 chatbots_usage: chatbotCounts,
-                tasks_usage: taskCounts,
+                purposes_usage: purposeCounts,
                 surveys: userSurveys
             }
         });
