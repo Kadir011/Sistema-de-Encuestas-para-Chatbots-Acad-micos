@@ -45,6 +45,7 @@ CREATE TABLE teacher_surveys (
     advantages TEXT[],
     concerns TEXT[],
     resources_needed TEXT[],
+    would_recommend BOOLEAN,
     age_range VARCHAR(50),
     institution_type VARCHAR(100),
     country VARCHAR(100),
