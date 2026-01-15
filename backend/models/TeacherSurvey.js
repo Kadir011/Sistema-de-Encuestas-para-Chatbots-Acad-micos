@@ -8,9 +8,9 @@ class TeacherSurvey {
                 INSERT INTO teacher_surveys (
                     user_id, has_used_chatbot, chatbots_used, courses_used,
                     purposes, outcomes, challenges, likelihood_future_use,
-                    advantages, concerns, resources_needed, age_range,
-                    institution_type, country, years_experience, additional_comments
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                    advantages, concerns, resources_needed, would_recommend,
+                    age_range, institution_type, country, years_experience, additional_comments
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                 RETURNING *
             `;
 
@@ -26,6 +26,7 @@ class TeacherSurvey {
                 surveyData.advantages || [],
                 surveyData.concerns || [],
                 surveyData.resources_needed || [],
+                surveyData.would_recommend,
                 surveyData.age_range,
                 surveyData.institution_type,
                 surveyData.country,
@@ -84,8 +85,13 @@ class TeacherSurvey {
     static async findByUserId(userId) {
         try {
             const text = `
-                SELECT t.* 
+                SELECT 
+                    t.*,
+                    u.username,
+                    u.email,
+                    u.role
                 FROM teacher_surveys t
+                JOIN users u ON t.user_id = u.id
                 WHERE t.user_id = $1
                 ORDER BY t.created_at DESC
             `;
@@ -112,12 +118,13 @@ class TeacherSurvey {
                     advantages = COALESCE($8, advantages),
                     concerns = COALESCE($9, concerns),
                     resources_needed = COALESCE($10, resources_needed),
-                    age_range = COALESCE($11, age_range),
-                    institution_type = COALESCE($12, institution_type),
-                    country = COALESCE($13, country),
-                    years_experience = COALESCE($14, years_experience),
-                    additional_comments = COALESCE($15, additional_comments)
-                WHERE id = $16
+                    would_recommend = COALESCE($11, would_recommend),
+                    age_range = COALESCE($12, age_range),
+                    institution_type = COALESCE($13, institution_type),
+                    country = COALESCE($14, country),
+                    years_experience = COALESCE($15, years_experience),
+                    additional_comments = COALESCE($16, additional_comments)
+                WHERE id = $17
                 RETURNING *
             `;
 
@@ -132,6 +139,7 @@ class TeacherSurvey {
                 surveyData.advantages,
                 surveyData.concerns,
                 surveyData.resources_needed,
+                surveyData.would_recommend,
                 surveyData.age_range,
                 surveyData.institution_type,
                 surveyData.country,
