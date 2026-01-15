@@ -155,10 +155,11 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ -f "backend/database/init.sql" ]; then
-    print_info "Ejecutando script de inicialización..."
+    print_info "Ejecutando script de inicialización e insertando admin..."
     psql -U $DB_USER -d $DB_NAME -f backend/database/init.sql
     if [ $? -eq 0 ]; then
         print_success "Base de datos inicializada correctamente"
+        print_success "Usuario administrador creado: admin / admin1234"
     else
         print_error "Error al inicializar la base de datos"
         exit 1
@@ -178,7 +179,7 @@ echo "======================================"
 echo ""
 print_info "Próximos pasos:"
 echo ""
-echo "1. Configura las variables de entorno en backend/.env"
+echo "Configura las variables de entorno en backend/.env"
 echo ""
 echo "Para iniciar el proyecto:"
 echo ""
