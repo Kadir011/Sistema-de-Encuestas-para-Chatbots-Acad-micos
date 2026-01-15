@@ -61,3 +61,7 @@ CREATE INDEX idx_student_surveys_user_id ON student_surveys(user_id);
 CREATE INDEX idx_teacher_surveys_user_id ON teacher_surveys(user_id);
 CREATE INDEX idx_student_surveys_created_at ON student_surveys(created_at DESC);
 CREATE INDEX idx_teacher_surveys_created_at ON teacher_surveys(created_at DESC);
+
+-- Insertar administrador de prueba (Password: admin123)
+INSERT INTO users (username, email, password, role)
+VALUES ('admin', 'admin@gmail.com', '$2b$10$GnYOFnsR5p.H572rHbQ7C.NufDJ.Zct/F03B/MDxCvrwik4EQBHuW', 'admin');
