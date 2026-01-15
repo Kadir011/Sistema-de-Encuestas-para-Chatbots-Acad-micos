@@ -8,6 +8,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import studentSurveyRoutes from './routes/studentSurveyRoutes.js';
 import teacherSurveyRoutes from './routes/teacherSurveyRoutes.js';
+import exportRoutes from './routes/exportRoutes.js';
 
 // Cargar variables de entorno
 dotenv.config();
@@ -98,6 +99,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/student-surveys', studentSurveyRoutes);
 app.use('/api/teacher-surveys', teacherSurveyRoutes);
+app.use('/api/export', exportRoutes);
 
 // =====================================
 // MANEJO DE ERRORES
@@ -184,6 +186,10 @@ const startServer = async () => {
             console.log('    - POST   /api/teacher-surveys                  (Crear)');
             console.log('    - PUT    /api/teacher-surveys/:id              (Actualizar)');
             console.log('    - DELETE /api/teacher-surveys/:id              (Eliminar)');
+            console.log('\n   EXPORTACION:');
+            console.log('    - GET    /api/export/student-surveys           (Exportar encuestas de estudiantes)');
+            console.log('    - GET    /api/export/teacher-surveys           (Exportar encuestas de profesores)');
+            console.log('    - GET    /api/export/statistics                (Exportar estadísticas)');
             console.log('\n   UTILIDADES:');
             console.log('    - GET    /api/health             (Estado del servidor)');
             console.log('\n' + '='.repeat(60) + '\n');
