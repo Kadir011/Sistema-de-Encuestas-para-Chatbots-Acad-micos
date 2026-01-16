@@ -58,8 +58,7 @@ export const validateRegister = (req, res, next) => {
 // Validar datos de login
 export const validateLogin = (req, res, next) => {
     try {
-        const { email, password } = req.body;
-
+        const { email, password, role } = req.body;
         const errors = [];
 
         if (!email) {
@@ -73,6 +72,10 @@ export const validateLogin = (req, res, next) => {
 
         if (!password) {
             errors.push('La contraseña es requerida');
+        }
+
+        if (!role) {
+            errors.push('El rol es requerido para iniciar sesión');
         }
 
         if (errors.length > 0) {
