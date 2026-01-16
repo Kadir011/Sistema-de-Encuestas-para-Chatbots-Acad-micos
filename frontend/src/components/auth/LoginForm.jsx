@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useForm } from '../../hooks/useForm';
 import { validateLoginForm } from '../../utils/validators';
+import { ROLES } from '../../utils/constants';
 import Input from '../common/Input';
+import Select from '../common/Select';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
 
@@ -22,7 +24,7 @@ const LoginForm = () => {
         handleBlur,
         handleSubmit,
     } = useForm(
-        { email: '', password: '' },
+        { email: '', password: '', role: 'student' }, // student por defecto
         validateLoginForm
     );
 
@@ -32,9 +34,16 @@ const LoginForm = () => {
             await login(formValues);
             navigate('/dashboard');
         } catch (err) {
+            // El mensaje de error vendrá validado desde el backend según el rol
             setError(err.message || 'Error al iniciar sesión');
         }
     };
+
+    const roleOptions = [
+        { value: ROLES.STUDENT, label: 'Estudiante' },
+        { value: ROLES.TEACHER, label: 'Docente' },
+        { value: ROLES.ADMIN, label: 'Administrador' },
+    ];
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
@@ -46,7 +55,7 @@ const LoginForm = () => {
                             Iniciar Sesión
                         </h2>
                         <p className="text-gray-600">
-                            Ingresa a tu cuenta para continuar
+                            Selecciona tu tipo de cuenta e ingresa
                         </p>
                     </div>
 
@@ -62,6 +71,20 @@ const LoginForm = () => {
 
                     {/* Formulario */}
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                        {/* Selector de Rol */}
+                        <Select
+                            label="Tipo de Acceso"
+                            name="role"
+                            value={values.role}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            error={errors.role}
+                            touched={touched.role}
+                            options={roleOptions}
+                            icon={<ShieldCheck size={20} className="text-gray-400" />}
+                            required
+                        />
+
                         <Input
                             label="Correo Electrónico"
                             name="email"
@@ -99,46 +122,30 @@ const LoginForm = () => {
                             </button>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="ml-2 text-sm text-gray-600">
-                                    Recordarme
-                                </span>
-                            </label>
-                            <Link
-                                to="/forgot-password"
-                                className="text-sm text-blue-600 hover:text-blue-700"
-                            >
-                                ¿Olvidaste tu contraseña?
-                            </Link>
-                        </div>
-
                         <Button
                             type="submit"
                             variant="primary"
                             fullWidth
                             size="lg"
                         >
-                            Iniciar Sesión
+                            Acceder como {roleOptions.find(r => r.value === values.role)?.label}
                         </Button>
                     </form>
 
-                    {/* Registro */}
-                    <div className="mt-6 text-center">
-                        <p className="text-gray-600">
-                            ¿No tienes una cuenta?{' '}
-                            <Link
-                                to="/register"
-                                className="text-blue-600 hover:text-blue-700 font-medium"
-                            >
-                                Regístrate aquí
-                            </Link>
-                        </p>
-                    </div>
+                    {/* Registro - Solo visible para Estudiantes/Docentes */}
+                    {values.role !== ROLES.ADMIN && (
+                        <div className="mt-6 text-center">
+                            <p className="text-gray-600">
+                                ¿No tienes una cuenta?{' '}
+                                <Link
+                                    to="/register"
+                                    className="text-blue-600 hover:text-blue-700 font-medium"
+                                >
+                                    Regístrate aquí
+                                </Link>
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer */}
