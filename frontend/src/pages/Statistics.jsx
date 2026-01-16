@@ -6,14 +6,17 @@ import Chart from '../components/dashboard/Chart';
 import StatsCard from '../components/dashboard/StatsCard';
 import Loading from '../components/common/Loading';
 import Alert from '../components/common/Alert';
-import { BarChart3, PieChart, TrendingUp, Users } from 'lucide-react';
+import Button from '../components/common/Button';
+import ExportModal from '../components/admin/ExportModal';
+import { BarChart3, PieChart, TrendingUp, Users, Download } from 'lucide-react';
 
 const Statistics = () => {
-    const { isStudent, isTeacher, isAdmin } = useAuth();
+    const { isStudent, isTeacher, isAdmin, user } = useAuth();
     const [stats, setStats] = useState(null);
     const [chartData, setChartData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [showExportModal, setShowExportModal] = useState(false);
 
     useEffect(() => {
         loadStatistics();
@@ -198,10 +201,45 @@ const Statistics = () => {
 
     return (
         <div>
-            <Header 
-                title="Estadísticas"
-                subtitle="Análisis y tendencias del uso de chatbots de IA"
-            />
+            {/* Header con título, subtítulo, info de usuario y botón de exportar */}
+            <div className="bg-white shadow-sm border-b border-gray-200 mb-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900">
+                                Estadísticas
+                            </h1>
+                            <p className="mt-1 text-sm text-gray-600">
+                                Análisis y tendencias del uso de chatbots de IA
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {/* Cuadro de bienvenida */}
+                            <div className="hidden md:block">
+                                <div className="bg-blue-50 px-4 py-2 rounded-lg">
+                                    <p className="text-sm text-gray-600">Bienvenido,</p>
+                                    <p className="font-semibold text-gray-900">
+                                        {user?.username}
+                                    </p>
+                                    <p className="text-xs text-blue-600 capitalize">
+                                        {user?.role === 'admin' ? 'Administrador' : user?.role}
+                                    </p>
+                                </div>
+                            </div>
+                            {/* Botón de exportar (solo admin) */}
+                            {isAdmin() && (
+                                <Button 
+                                    onClick={() => setShowExportModal(true)}
+                                    variant="success"
+                                    icon={<Download size={20} />}
+                                >
+                                    Exportar a Excel
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {error && (
                 <Alert type="error" message={error} onClose={() => setError('')} className="mb-6" />
@@ -272,6 +310,14 @@ const Statistics = () => {
                     height={350}
                 />
             </div>
+
+            {/* Modal de Exportación (solo para admin) */}
+            {isAdmin() && (
+                <ExportModal 
+                    isOpen={showExportModal} 
+                    onClose={() => setShowExportModal(false)} 
+                />
+            )}
         </div>
     );
 };
