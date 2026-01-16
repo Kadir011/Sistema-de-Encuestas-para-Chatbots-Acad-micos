@@ -24,7 +24,7 @@ const LoginForm = () => {
         handleBlur,
         handleSubmit,
     } = useForm(
-        { email: '', password: '', role: 'student' }, // student por defecto
+        { email: '', password: '', role: ROLES.STUDENT }, // Estudiante por defecto
         validateLoginForm
     );
 
@@ -34,7 +34,7 @@ const LoginForm = () => {
             await login(formValues);
             navigate('/dashboard');
         } catch (err) {
-            // El mensaje de error vendrá validado desde el backend según el rol
+            // El mensaje detallado ("Solo acceso a...") proviene del backend modificado
             setError(err.message || 'Error al iniciar sesión');
         }
     };
@@ -49,7 +49,6 @@ const LoginForm = () => {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
             <div className="max-w-md w-full">
                 <div className="bg-white rounded-2xl shadow-xl p-8">
-                    {/* Header */}
                     <div className="text-center mb-8">
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">
                             Iniciar Sesión
@@ -59,7 +58,6 @@ const LoginForm = () => {
                         </p>
                     </div>
 
-                    {/* Error Alert */}
                     {error && (
                         <Alert
                             type="error"
@@ -69,7 +67,6 @@ const LoginForm = () => {
                         />
                     )}
 
-                    {/* Formulario */}
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {/* Selector de Rol */}
                         <Select
@@ -132,13 +129,13 @@ const LoginForm = () => {
                         </Button>
                     </form>
 
-                    {/* Registro - Solo visible para Estudiantes/Docentes */}
+                    {/* Registro dinámico para Estudiante o Docente */}
                     {values.role !== ROLES.ADMIN && (
                         <div className="mt-6 text-center">
                             <p className="text-gray-600">
-                                ¿No tienes una cuenta?{' '}
+                                ¿No tienes una cuenta de {roleOptions.find(r => r.value === values.role)?.label}?{' '}
                                 <Link
-                                    to="/register"
+                                    to={`/register/${values.role}`}
                                     className="text-blue-600 hover:text-blue-700 font-medium"
                                 >
                                     Regístrate aquí
@@ -148,16 +145,9 @@ const LoginForm = () => {
                     )}
                 </div>
 
-                {/* Footer */}
                 <p className="text-center text-gray-600 mt-6 text-sm">
                     Al iniciar sesión, aceptas nuestros{' '}
-                    <Link to="/terms" className="text-blue-600 hover:underline">
-                        Términos de Servicio
-                    </Link>{' '}
-                    y{' '}
-                    <Link to="/privacy" className="text-blue-600 hover:underline">
-                        Política de Privacidad
-                    </Link>
+                    <Link to="/terms" className="text-blue-600 hover:underline">Términos</Link> y <Link to="/privacy" className="text-blue-600 hover:underline">Privacidad</Link>
                 </p>
             </div>
         </div>
