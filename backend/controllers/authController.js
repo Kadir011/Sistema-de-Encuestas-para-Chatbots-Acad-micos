@@ -12,6 +12,14 @@ export const register = async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
+        // Seguridad: No permitir registro de admins desde el endpoint público
+        if (role === 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'No se permite el registro de administradores por esta vía'
+            });
+        }
+
         // Verificar si el email ya existe
         const existingEmail = await User.findByEmail(email);
         if (existingEmail) {
@@ -38,7 +46,6 @@ export const register = async (req, res) => {
             role: role || 'student'
         });
 
-        // Generar token
         const token = generateToken(newUser.id);
 
         res.status(201).json({
@@ -64,14 +71,25 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, role } = req.body;
+
+        // Mapeo de mensajes de error personalizados
+        const errorMessages = {
+            student: 'Solo acceso a estudiantes',
+            teacher: 'Solo acceso a docentes',
+            admin: 'Solo acceso a admin'
+        };
+
+        const defaultError = errorMessages[role] || 'Credenciales inválidas';
 
         // Buscar usuario por email
         const user = await User.findByEmail(email);
-        if (!user) {
+        
+        // Validar existencia y coincidencia estricta de ROL
+        if (!user || user.role !== role) {
             return res.status(401).json({
                 success: false,
-                message: 'Credenciales inválidas'
+                message: defaultError
             });
         }
 
@@ -80,11 +98,10 @@ export const login = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
-                message: 'Credenciales inválidas'
+                message: defaultError
             });
         }
 
-        // Generar token
         const token = generateToken(user.id);
 
         res.json({
@@ -111,103 +128,35 @@ export const login = async (req, res) => {
 export const getProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'Usuario no encontrado'
-            });
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
         }
-
-        res.json({
-            success: true,
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                created_at: user.created_at
-            }
-        });
+        res.json({ success: true, user: { id: user.id, username: user.username, email: user.email, role: user.role, created_at: user.created_at } });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al obtener perfil',
-            error: error.message
-        });
+        res.status(500).json({ success: false, message: 'Error al obtener perfil', error: error.message });
     }
 };
 
 export const updatePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-
         if (!currentPassword || !newPassword) {
-            return res.status(400).json({
-                success: false,
-                message: 'Se requiere la contraseña actual y la nueva contraseña'
-            });
+            return res.status(400).json({ success: false, message: 'Se requiere la contraseña actual y la nueva contraseña' });
         }
-
-        if (newPassword.length < 6) {
-            return res.status(400).json({
-                success: false,
-                message: 'La nueva contraseña debe tener al menos 6 caracteres'
-            });
-        }
-
-        // Obtener usuario con contraseña
         const user = await User.findByEmail(req.user.email);
-
-        // Verificar contraseña actual
         const isPasswordValid = await User.verifyPassword(currentPassword, user.password);
         if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: 'La contraseña actual es incorrecta'
-            });
+            return res.status(401).json({ success: false, message: 'La contraseña actual es incorrecta' });
         }
-
-        // Actualizar contraseña
         await User.updatePassword(req.user.id, newPassword);
-
-        res.json({
-            success: true,
-            message: 'Contraseña actualizada exitosamente'
-        });
+        res.json({ success: true, message: 'Contraseña actualizada exitosamente' });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al actualizar contraseña',
-            error: error.message
-        });
+        res.status(500).json({ success: false, message: 'Error al actualizar contraseña', error: error.message });
     }
 };
 
 export const logout = async (req, res) => {
-    try {
-        // En una implementación más avanzada, aquí se podría:
-        // - Invalidar el token en una blacklist
-        // - Limpiar cookies si se usan
-        // - Registrar el logout en logs
-
-        res.json({
-            success: true,
-            message: 'Sesión cerrada exitosamente'
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error al cerrar sesión',
-            error: error.message
-        });
-    }
+    res.json({ success: true, message: 'Sesión cerrada exitosamente' });
 };
 
-export default {
-    register,
-    login,
-    getProfile,
-    updatePassword,
-    logout
-};
+export default { register, login, getProfile, updatePassword, logout };
