@@ -75,6 +75,10 @@ export const validateLoginForm = (formData) => {
         errors.password = 'La contraseña es requerida';
     }
 
+    if (!formData.role) {
+        errors.role = 'Debes seleccionar un tipo de acceso';
+    }
+
     return errors;
 };
 
