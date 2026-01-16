@@ -1,21 +1,24 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff, UserCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useForm } from '../../hooks/useForm';
 import { validateRegisterForm } from '../../utils/validators';
 import { ROLES } from '../../utils/constants';
 import Input from '../common/Input';
-import Select from '../common/Select';
 import Button from '../common/Button';
 import Alert from '../common/Alert';
 
 const RegisterForm = () => {
+    const { role } = useParams(); // Obtiene el rol de la URL (ej: /register/student)
     const navigate = useNavigate();
     const { register } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
+
+    // Traducir el rol para la interfaz de usuario
+    const roleLabel = role === ROLES.TEACHER ? 'Docente' : 'Estudiante';
 
     const {
         values,
@@ -24,16 +27,24 @@ const RegisterForm = () => {
         handleChange,
         handleBlur,
         handleSubmit,
+        setValue,
     } = useForm(
         {
             username: '',
             email: '',
             password: '',
             confirmPassword: '',
-            role: 'student',
+            role: role || ROLES.STUDENT, // Sincroniza con el rol de la URL
         },
         validateRegisterForm
     );
+
+    // Efecto para asegurar que el valor del rol se actualice si cambia el parámetro de la URL
+    useEffect(() => {
+        if (role) {
+            setValue('role', role);
+        }
+    }, [role, setValue]);
 
     const onSubmit = async (formValues) => {
         try {
@@ -46,29 +57,22 @@ const RegisterForm = () => {
         }
     };
 
-    const roleOptions = [
-        { value: ROLES.STUDENT, label: 'Estudiante' },
-        { value: ROLES.TEACHER, label: 'Profesor' },
-    ];
-
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-12">
             <div className="max-w-md w-full">
                 <div className="bg-white rounded-2xl shadow-xl p-8">
-                    {/* Header */}
                     <div className="text-center mb-8">
                         <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                             <UserCircle size={32} className="text-blue-600" />
                         </div>
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                            Crear Cuenta
+                            Registro de {roleLabel}
                         </h2>
                         <p className="text-gray-600">
-                            Únete y empieza a participar en nuestras encuestas
+                            Crea tu cuenta para participar en las encuestas
                         </p>
                     </div>
 
-                    {/* Error Alert */}
                     {error && (
                         <Alert
                             type="error"
@@ -78,7 +82,6 @@ const RegisterForm = () => {
                         />
                     )}
 
-                    {/* Formulario */}
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <Input
                             label="Nombre de Usuario"
@@ -105,18 +108,6 @@ const RegisterForm = () => {
                             touched={touched.email}
                             placeholder="tu@email.com"
                             icon={<Mail size={20} className="text-gray-400" />}
-                            required
-                        />
-
-                        <Select
-                            label="Tipo de Cuenta"
-                            name="role"
-                            value={values.role}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                            error={errors.role}
-                            touched={touched.role}
-                            options={roleOptions}
                             required
                         />
 
@@ -172,11 +163,10 @@ const RegisterForm = () => {
                             fullWidth
                             size="lg"
                         >
-                            Crear Cuenta
+                            Registrarse como {roleLabel}
                         </Button>
                     </form>
 
-                    {/* Login */}
                     <div className="mt-6 text-center">
                         <p className="text-gray-600">
                             ¿Ya tienes una cuenta?{' '}
@@ -189,18 +179,6 @@ const RegisterForm = () => {
                         </p>
                     </div>
                 </div>
-
-                {/* Footer */}
-                <p className="text-center text-gray-600 mt-6 text-sm">
-                    Al registrarte, aceptas nuestros{' '}
-                    <Link to="/terms" className="text-blue-600 hover:underline">
-                        Términos de Servicio
-                    </Link>{' '}
-                    y{' '}
-                    <Link to="/privacy" className="text-blue-600 hover:underline">
-                        Política de Privacidad
-                    </Link>
-                </p>
             </div>
         </div>
     );
