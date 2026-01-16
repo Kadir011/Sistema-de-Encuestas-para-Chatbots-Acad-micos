@@ -29,9 +29,10 @@ function App() {
               <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
                 <Route path="login" element={<Login />} />
-                <Route path="register" element={<Register />} />
+                {/* Ruta de registro dinámica por rol */}
+                <Route path="register/:role" element={<Register />} />
 
-                {/* Protected routes */}
+                {/* Rutas protegidas */}
                 <Route
                   path="dashboard"
                   element={
