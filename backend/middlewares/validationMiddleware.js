@@ -224,7 +224,7 @@ export const validateTeacherSurvey = (req, res, next) => {
             chatbots_used,
             courses_used,
             purposes,
-            country
+            countries
         } = req.body;
 
         const errors = [];
@@ -236,22 +236,14 @@ export const validateTeacherSurvey = (req, res, next) => {
 
         // Si ha usado chatbots, validar campos relacionados
         if (has_used_chatbot === true) {
-            if (!chatbots_used || chatbots_used.length === 0) {
-                errors.push('Debe seleccionar al menos un chatbot usado');
-            }
-
-            if (!courses_used || courses_used.length === 0) {
-                errors.push('Debe seleccionar al menos un curso');
-            }
-
-            if (!purposes || purposes.length === 0) {
-                errors.push('Debe seleccionar al menos un propósito');
-            }
+            if (!chatbots_used || chatbots_used.length === 0) errors.push('Debe seleccionar al menos un chatbot usado');
+            if (!courses_used || courses_used.length === 0) errors.push('Debe seleccionar al menos un curso');
+            if (!purposes || purposes.length === 0) errors.push('Debe seleccionar al menos un propósito');
         }
 
-        // País es requerido
-        if (!country) {
-            errors.push('El país es requerido');
+        // VALIDACIÓN DE PAÍSES (Arreglo)
+        if (!countries || !Array.isArray(countries) || countries.length === 0) {
+            errors.push('Debe seleccionar al menos un país');
         }
 
         if (errors.length > 0) {
