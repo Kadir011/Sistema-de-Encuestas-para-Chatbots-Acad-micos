@@ -5,7 +5,7 @@ export const createTeacherSurvey = async (req, res) => {
         const surveyData = {
             user_id: req.user.id,
             ...req.body
-        }
+        };
 
         const newSurvey = await TeacherSurvey.create(surveyData);
         res.status(201).json({
@@ -20,7 +20,7 @@ export const createTeacherSurvey = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 export const getAllTeacherSurveys = async (req, res) => {
     try {
@@ -99,7 +99,6 @@ export const updateTeacherSurvey = async (req, res) => {
         const { id } = req.params;
         const survey = await TeacherSurvey.findById(id);
 
-        // Si no existe la encuesta
         if (!survey) {
             return res.status(404).json({
                 success: false,
@@ -107,7 +106,6 @@ export const updateTeacherSurvey = async (req, res) => {
             });
         }
 
-        // Verificar permisos: solo el propietario o admin pueden actualizar
         if (survey.user_id !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({
                 success: false,
@@ -116,7 +114,7 @@ export const updateTeacherSurvey = async (req, res) => {
         }
 
         const updatedSurvey = await TeacherSurvey.update(id, req.body);
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: 'Encuesta actualizada exitosamente',
             survey: updatedSurvey
@@ -128,7 +126,7 @@ export const updateTeacherSurvey = async (req, res) => {
             error: error.message
         });
     }
-}
+};
 
 export const deleteTeacherSurvey = async (req, res) => {
     try {
