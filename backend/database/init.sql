@@ -48,7 +48,7 @@ CREATE TABLE teacher_surveys (
     would_recommend BOOLEAN,
     age_range VARCHAR(50),
     institution_type VARCHAR(100),
-    country VARCHAR(100),
+    countries TEXT[], -- cambiamos a TEXT array para seleccionar múltiples países
     years_experience VARCHAR(50),
     additional_comments TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
