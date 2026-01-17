@@ -137,8 +137,8 @@ export const validateTeacherSurvey = (formData) => {
         }
     }
 
-    if (!formData.country) {
-        errors.country = 'El país es requerido';
+    if (!isNonEmptyArray(formData.countries)) {
+        errors.countries = 'Debes seleccionar al menos un país';
     }
 
     return errors;
