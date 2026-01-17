@@ -1,7 +1,7 @@
 import { query } from '../config/database.js';
 
 class TeacherSurvey {
-    // Crear nueva encuesta de profesor
+    // Crear nueva encuesta de profesor con soporte para arreglo de países
     static async create(surveyData) {
         try {
             const text = `
@@ -9,7 +9,7 @@ class TeacherSurvey {
                     user_id, has_used_chatbot, chatbots_used, courses_used,
                     purposes, outcomes, challenges, likelihood_future_use,
                     advantages, concerns, resources_needed, would_recommend,
-                    age_range, institution_type, country, years_experience, additional_comments
+                    age_range, institution_type, countries, years_experience, additional_comments
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                 RETURNING *
             `;
@@ -29,7 +29,7 @@ class TeacherSurvey {
                 surveyData.would_recommend,
                 surveyData.age_range,
                 surveyData.institution_type,
-                surveyData.country,
+                surveyData.countries || [], // Arreglo de países
                 surveyData.years_experience,
                 surveyData.additional_comments
             ];
@@ -102,7 +102,7 @@ class TeacherSurvey {
         }
     }
 
-    // Actualizar encuesta
+    // Actualizar encuesta con soporte para arreglo de países
     static async update(id, surveyData) {
         try {
             const text = `
@@ -121,7 +121,7 @@ class TeacherSurvey {
                     would_recommend = COALESCE($11, would_recommend),
                     age_range = COALESCE($12, age_range),
                     institution_type = COALESCE($13, institution_type),
-                    country = COALESCE($14, country),
+                    countries = COALESCE($14, countries),
                     years_experience = COALESCE($15, years_experience),
                     additional_comments = COALESCE($16, additional_comments)
                 WHERE id = $17
@@ -142,7 +142,7 @@ class TeacherSurvey {
                 surveyData.would_recommend,
                 surveyData.age_range,
                 surveyData.institution_type,
-                surveyData.country,
+                surveyData.countries,
                 surveyData.years_experience,
                 surveyData.additional_comments,
                 id
@@ -210,14 +210,17 @@ class TeacherSurvey {
         }
     }
 
-    // Obtener distribución por país
+    // Obtener distribución por país (usando UNNEST para contar cada país individualmente)
     static async getCountryDistribution() {
         try {
             const text = `
                 SELECT 
                     country,
                     COUNT(*) as count
-                FROM teacher_surveys
+                FROM (
+                    SELECT UNNEST(countries) as country
+                    FROM teacher_surveys
+                ) subquery
                 WHERE country IS NOT NULL
                 GROUP BY country
                 ORDER BY count DESC
