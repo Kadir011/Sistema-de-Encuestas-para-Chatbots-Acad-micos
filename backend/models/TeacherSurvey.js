@@ -29,7 +29,7 @@ class TeacherSurvey {
                 surveyData.would_recommend,
                 surveyData.age_range,
                 surveyData.institution_type,
-                surveyData.countries || [], // Arreglo de países
+                surveyData.countries || [],
                 surveyData.years_experience,
                 surveyData.additional_comments
             ];
