@@ -57,6 +57,7 @@ const Home = () => {
                                 </Link>
                             ) : (
                                 <>
+                                    {/* Redirige a selección de rol */}
                                     <Link to="/register">
                                         <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-100 w-full sm:w-auto">
                                             Comenzar Ahora
