@@ -8,6 +8,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import RoleSelection from './pages/RoleSelection';
 import Dashboard from './pages/Dashboard';
 import AdminPanel from './pages/AdminPanel';
 import StudentSurvey from './pages/StudentSurvey';
@@ -29,7 +30,11 @@ function App() {
               <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
                 <Route path="login" element={<Login />} />
-                {/* Ruta de registro dinámica por rol */}
+
+                {/* Ruta base para selección de rol */}
+                <Route path="register" element={<RoleSelection />} />
+
+                {/* Ruta de registro dinámica por rol (ej: /register/student) */}
                 <Route path="register/:role" element={<Register />} />
 
                 {/* Rutas protegidas */}
